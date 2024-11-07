@@ -1,13 +1,16 @@
+const endpointSecret = process.env.endpointSecret;
+const test_key = process.env.test_key
+
+const stripe = require("stripe")(test_key);
 const express = require("express");
 const app = express();
 const mysql = require("mysql2/promise");
-const stripe = require("stripe")("sk_test_0QcpU1z0LTkqnbM2xwSgkV9500o3nNRTSO");
 const { v4: uuidv4 } = require("uuid");
 require('dotenv').config();
 
 const port = 8000;
 
-const endpointSecret = process.env.endpointSecret;
+
 
 const initMySQL = async () => {
   conn = await mysql.createPool({
