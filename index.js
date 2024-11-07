@@ -25,6 +25,7 @@ app.get("/test", (req, res) => {
   res.json({
     message: "test",
   });
+  console.log('test')
 });
 
 app.post("/api/checkout", express.json(), async (req, res) => {
@@ -59,7 +60,7 @@ app.post("/api/checkout", express.json(), async (req, res) => {
       status: session.status,
     };
 
-    console.log(session);
+    console.log(session.url);
 
     const [result] = await conn.query("INSERT INTO orders SET ?", orderData);
 
@@ -68,7 +69,7 @@ app.post("/api/checkout", express.json(), async (req, res) => {
       product,
       order: result,
     });
-  } catch (error) {
+  } catch (error) { 
     console.log(error);
     res.status(400).json({
       message: "something wrong",
@@ -98,12 +99,15 @@ app.get("/api/order/:id", async (req, res) => {
 });
 
 app.post('/webhook', express.raw({type: 'application/json'}), async (request, response) => {
+    console.log("Establish webhook")
     const sig = request.headers['stripe-signature'];
   
     let event;
   
     try {
       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+      console.log(`Received event type: ${event.type}`);
+
     }
     catch (err) {
       response.status(400).send(`Webhook Error: ${err.message}`);
@@ -113,6 +117,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (request, re
     switch (event.type) {
       case 'checkout.session.completed':
         const paymentData = event.data.object;
+        console.log("session id from event: " + paymentData.id)
         console.log('paymentData', paymentData);
         const sessionId = paymentData.id
 
